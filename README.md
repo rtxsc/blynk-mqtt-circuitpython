@@ -2,7 +2,7 @@
 # Hybrid AdafruitIO - Blynk MQTT client for CircuitPython
 #### Repo for my work on Raspberry Pi Pico W / 2W 
 ---
-This example was verified to work with `MicroPython v1.25.0 RPI_PICO_W-20250415-v1.25.0.uf2` on:
+This example was verified to work with `Adafruit CircuitPython 9.2.8 on 2025-05-28` on:
 - `Raspberry Pi Pico W` (RP2040)
 - `Raspberry Pi Pico 2W` (RP2350)
 
@@ -43,6 +43,9 @@ Click the **`Use Blueprint`** button in [`MQTT Air Cooler/Heater Demo`](https://
 > [!NOTE]
 > Please note the device credentials that appear in the upper right corner. You'll need them in the next step.
 
+
+## Copy to CIRCUITPY
+
 Run these commands on your development machine (Terminal on macOS):
 
 ```sh
@@ -60,19 +63,47 @@ cd Downloads/blynk-mqtt-circuitpython/
 
 ```
 
-## 4. Run
+## Run
 
 The device should get connected in a few seconds. Your Serial Monitor should display something like this:
 
+> [!NOTE]
+> If configure to work with Blynk MQTT
+
 ```log
+      ___  __          __
+     / _ )/ /_ _____  / /__
+    / _  / / // / _ \/  '_/
+   /____/_/\_, /_//_/_/\_\
+          /___/ MQTT CircuitPython Device Demo for RP2040 | v0.0.1
 Connecting to WiFi
 Connected to WiFi
 Caught NotImplementedError
-My IP address is 192.168.0.128
-Ping google.com: 75.999969 ms
+My IP address is 192.168.X.XXX
+Ping google.com: {} ms
 Connecting to Blynk.Cloud...
 XXXX.YYYY: INFO - Attempting to connect to MQTT broker (attempt #1)
 Connected to Blynk.Cloud!
+```
+
+> [!NOTE]
+> If configure to work with Adafruit IO MQTT
+
+```log
+       ___       __      ____           _ __     ____ ___ 
+      /   | ____/ /___ _/ __/______  __(_) /_   /  _/ __ \
+     / /| |/ __  / __ `/ /_/ ___/ / / / / __/   / // / / /
+    / ___ / /_/ / /_/ / __/ /  / /_/ / / /_   _/ // /_/ / 
+   /_/  |_\__,_/\__,_/_/ /_/   \__,_/_/\__/  /___/\____/ 
+                    MQTT CircuitPython Device Demo for RP2040 | v0.0.1
+Connecting to WiFi
+Connected to WiFi
+Caught NotImplementedError
+My IP address is 192.168.X.XXX
+Ping google.com: {} ms
+Connecting to Adafruit IO...
+XXXX.YYYY: INFO - Attempting to connect to MQTT broker (attempt #1)
+Connected to Adafruit IO!
 ```
 
 ---

@@ -18,11 +18,20 @@ import time
 import board
 from digitalio import DigitalInOut
 from microcontroller import cpu
-import traceback
+import traceback, sys
 import supervisor
 import alarm
 import analogio
 from board import VOLTAGE_MONITOR
+
+firmware_version = "15.8.2025"
+LOGO = r"""
+      ___  __          __
+     / _ )/ /_ _____  / /__
+    / _  / / // / _ \/  '_/
+   /____/_/\_, /_//_/_/\_\
+          /___/ CircuitPython Device Demo for {} | v{}
+""".format(sys.platform, firmware_version)
 
 use_blynk = True        # set to False for Adafruit IO server
 is_free_plan = True     # only applicable for Blynk | True = Free Plan
@@ -75,6 +84,8 @@ if None in [ssid, password]:
     )
 
 print()
+if use_blynk:
+    print(LOGO)
 print("Connecting to WiFi")
 
 #  connect to your SSID
