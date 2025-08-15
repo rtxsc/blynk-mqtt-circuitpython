@@ -24,13 +24,22 @@ import alarm
 import analogio
 from board import VOLTAGE_MONITOR
 
-firmware_version = "15.8.2025"
-LOGO = r"""
+firmware_version = "0.0.1"
+BLYNK_LOGO = r"""
       ___  __          __
      / _ )/ /_ _____  / /__
     / _  / / // / _ \/  '_/
    /____/_/\_, /_//_/_/\_\
-          /___/ CircuitPython Device Demo for {} | v{}
+          /___/ MQTT CircuitPython Device Demo for {} | v{}
+""".format(sys.platform, firmware_version)
+
+AIO_LOGO = r"""
+       ___       __      ____           _ __     ____ ___ 
+      /   | ____/ /___ _/ __/______  __(_) /_   /  _/ __ \
+     / /| |/ __  / __ `/ /_/ ___/ / / / / __/   / // / / /
+    / ___ / /_/ / /_/ / __/ /  / /_/ / / /_   _/ // /_/ / 
+   /_/  |_\__,_/\__,_/_/ /_/   \__,_/_/\__/  /___/\____/ 
+                    MQTT CircuitPython Device Demo for {} | v{}
 """.format(sys.platform, firmware_version)
 
 use_blynk = True        # set to False for Adafruit IO server
@@ -85,7 +94,9 @@ if None in [ssid, password]:
 
 print()
 if use_blynk:
-    print(LOGO)
+    print(BLYNK_LOGO)
+else:
+    print(AIO_LOGO)
 print("Connecting to WiFi")
 
 #  connect to your SSID

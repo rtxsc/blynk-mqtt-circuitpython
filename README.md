@@ -68,7 +68,7 @@ cd Downloads/blynk-mqtt-circuitpython/
 The device should get connected in a few seconds. Your Serial Monitor should display something like this:
 
 > [!NOTE]
-> If configure to work with Blynk MQTT
+> If configured to work with Blynk MQTT, these will appear
 
 ```log
       ___  __          __
@@ -87,7 +87,7 @@ Connected to Blynk.Cloud!
 ```
 
 > [!NOTE]
-> If configure to work with Adafruit IO MQTT
+> If configured to work with Adafruit IO MQTT, these will appear
 
 ```log
        ___       __      ____           _ __     ____ ___ 
