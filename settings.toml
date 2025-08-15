@@ -1,0 +1,8 @@
+CIRCUITPY_WIFI_SSID = "your-ssid-here"
+CIRCUITPY_WIFI_PASSWORD = "your-ssid-password-here"
+
+ADAFRUIT_AIO_USERNAME = "your-ADAFRUIT_AIO_USERNAME-here"
+ADAFRUIT_AIO_KEY      = "fill_ADAFRUIT_AIO_KEY_up"
+
+BLYNK_AUTH_TOKEN    = "your-BLYNK_AUTH_TOKEN-here" 
+BLYNK_MQTT_BROKER   = "blynk.cloud" 
