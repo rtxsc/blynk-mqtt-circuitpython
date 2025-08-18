@@ -104,7 +104,7 @@ try:
     wifi.radio.connect(ssid, password)
 except TypeError:
     print("Could not find WiFi info. Check your settings.toml file!")
-    raise
+    supervisor.reload()
 
 print("Connected to WiFi")
 
