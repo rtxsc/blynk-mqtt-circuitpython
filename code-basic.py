@@ -1,7 +1,7 @@
 # SPDX-FileCopyrightText: 2025 ClumzyaziD for Robotronix Inc
 # SPDX-License-Identifier: MIT
 """
-Minimal Implementation of Blynk-MQTT with CircuitPython with deepsleep function
+Minimal Implementation of Blynk-MQTT with CircuitPython
 """
 from os import getenv
 import ipaddress
@@ -12,7 +12,6 @@ from binascii import hexlify
 import adafruit_connection_manager
 import adafruit_minimqtt.adafruit_minimqtt as MQTT
 from adafruit_io.adafruit_io import IO_MQTT
-import adafruit_requests
 import time
 
 import board
@@ -20,9 +19,6 @@ from digitalio import DigitalInOut
 from microcontroller import cpu
 import traceback, sys
 import supervisor
-import alarm
-import analogio
-from board import VOLTAGE_MONITOR
 
 firmware_version = "0.0.1"
 BLYNK_LOGO = r"""
@@ -46,32 +42,6 @@ use_blynk = True        # set to False for Adafruit IO server
 is_free_plan = True     # only applicable for Blynk | True = Free Plan
 enable_sync = True      # to minimize Message Usage in Blynk, set to False
 push_interval = 3600    # in seconds. Default to 1 hour to minimize Blynk quota usage
-
-## USB enumeration may take 4-5s per restart
-DEEP_SLEEP_DURATION_SECOND = 30
-time_alarm = alarm.time.TimeAlarm(monotonic_time=time.monotonic() + DEEP_SLEEP_DURATION_SECOND)
-pin_alarm = alarm.pin.PinAlarm(board.GP20, value = False)
-
-vsys_pin = analogio.AnalogIn(VOLTAGE_MONITOR)
-
-def enter_light_sleep():
-    alarm.light_sleep_until_alarms(time_alarm)
-
-def enter_deep_sleep():
-    print("Entering DEEPSLEEP now and wakeup after {} seconds".format(DEEP_SLEEP_DURATION_SECOND))
-    alarm.exit_and_deep_sleep_until_alarms(time_alarm, pin_alarm)
-
-def get_vsys():
-    adc_reading  = vsys_pin.value
-    adc_voltage  = (adc_reading * vsys_pin.reference_voltage) / 65535
-    vsys_voltage = adc_voltage * 3
-    # print("""ADC reading:{}
-    # ADC voltage:{}
-    # VSYS voltage:{}""".format(adc_reading, adc_voltage, vsys_voltage))
-    return vsys_voltage
-
-def map_val( x,  in_min,  in_max,  out_min,  out_max):
-    return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
 
 # Configure the RP2040 Pico LED Pin as an output
 led_pin = DigitalInOut(board.LED)
@@ -110,7 +80,6 @@ print("Connected to WiFi")
 
 pool = socketpool.SocketPool(wifi.radio)
 ssl_context = adafruit_connection_manager.get_radio_ssl_context(wifi.radio)
-# requests = adafruit_requests.Session(pool, ssl_context)
 
 try:
     rssi = wifi.radio.ap_info.rssi 
@@ -154,7 +123,6 @@ def unsubscribe(client, userdata, topic, pid):
     # This method is called when the client unsubscribes from a feed.
     print(f"Unsubscribed from {topic} with PID {pid}")
 
-
 def disconnected(client):
     # Disconnected function will be called when the client disconnects.
     print("Disconnected from Adafruit IO!")
@@ -167,9 +135,7 @@ def publish(client, userdata, topic, pid):
         print("Published User data: ", end="")
         print(userdata)
 
-
 def on_message(client, feed_id, payload):
-    global push_interval, is_free_plan
     # Message function will be called when a subscribed feed has a new value.
     # The feed_id parameter identifies the feed, and the payload parameter has
     # the new value.
@@ -180,30 +146,9 @@ def on_message(client, feed_id, payload):
         else:
             led_pin.value = False
 
-    if feed_id == "Deepsleep":
-        if payload == "ON" or payload == "1":
-            enter_deep_sleep()
-
-    if feed_id == "FastUpdate":
-        if payload == "ON" or payload == "1":
-            push_interval = 2
-            is_free_plan = False # HIGH MESSAGE USAGE ALERT
-        else:
-            push_interval = 3600
-            is_free_plan = True # to avoid consumption while idling
-        print("[CRITICAL INFO] Push Interval={} \t FREE PLAN = {}".format(push_interval, is_free_plan))
-
-    if feed_id == "joystick":       # just for fun - adding Joystick Widget
-        # axis = payload.encode()   # to expose the hidden byte in between x and y
-        axis = payload.split("\x00") 
-        x = axis[0]
-        y = axis[1]
-        print(x,y)
-
 def on_battery_msg(client, topic, message):
-    # Method called whenever user/feeds/battery has a new value
+    # Method called whenever user/feeds/battery has a new value (Adafruit IO template)
     print(f"Battery level: {message}v")
-
 
 if use_blynk:
     # Initialize a new MQTT Client object
@@ -267,19 +212,15 @@ def main():
         io.subscribe("downlink/#")
     else:
         io.subscribe("Power") # feed name on your AIO might be different
-        io.subscribe("FastUpdate") # feed name on your AIO might be different
-        io.subscribe("Deepsleep") # feed name on your AIO might be different
 
     if enable_sync:
         # Get latest values from server and update accordingly
         # this is similar to Blynk.syncVirtual on Arduino
         io.get("Power") 
-        io.get("FastUpdate")
-        io.get("Deepsleep")
 
     prv_refresh_time = 0.0
     # Start a blocking loop to check for new messages
-    print("All is set! running main loop...Push Interval set to {}s".format(push_interval))
+    print("All is set! Running blocking main loop...Push Interval set to {}s".format(push_interval))
     while True:
         try:
             io.loop()
@@ -289,9 +230,6 @@ def main():
             continue
 
         if (time.monotonic() - prv_refresh_time) > push_interval:
-            vsys_volt = get_vsys()
-            vsys_100  = map_val(vsys_volt, 0.0 , 3.0 , 0, 100)
-            print("Battery: {}V = {}%".format(vsys_volt, vsys_100))
             # take the cpu's temperature
             cpu_temp = cpu.temperature
             # truncate to two decimal points
@@ -300,13 +238,11 @@ def main():
                 print(f"CPU temperature is %s degrees C" % cpu_temp)
                 if not is_free_plan:
                     io.publish("ahtxTemp", cpu_temp) # pub to blynk
-                    io.publish("vsys100", vsys_100)
                     print("Published to Blynk.Cloud!")
             else:
                 print(f"CPU temperature is %s degrees C" % cpu_temp)
                 # publish for AIO since no limit
                 io.publish("ahtxTemp", cpu_temp) # pub to AIO
-                io.publish("vsys100", vsys_100)
                 print("Published to Adafruit IO!")
 
             prv_refresh_time = time.monotonic()
