@@ -125,7 +125,10 @@ def unsubscribe(client, userdata, topic, pid):
 
 def disconnected(client):
     # Disconnected function will be called when the client disconnects.
-    print("Disconnected from Adafruit IO!")
+    if use_blynk:
+        print("Disconnected from Blynk.Cloud!")
+    else:
+        print("Disconnected from Adafruit IO!")
 
 
 def publish(client, userdata, topic, pid):
